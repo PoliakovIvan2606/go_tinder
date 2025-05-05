@@ -1,0 +1,109 @@
+.profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.profile-photo-container {
+    border-radius: 15px 0 0 15px;
+    overflow: hidden;
+    height: 100%;
+}
+.carousel-item img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 15px 0 0 15px; /* Скругление только слева */
+}
+.profile-actions {
+    padding: 15px;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    border-radius: 0 0 0 15px;
+}
+.action-btn {
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s;
+}
+.dislike-btn {
+    background: #fff;
+    color: #ff6b6b;
+    border: 2px solid #ff6b6b;
+}
+.dislike-btn:hover {
+    background: #ff6b6b;
+    color: white;
+}
+.like-btn {
+    background: #fff;
+    color: #51cf66;
+    border: 2px solid #51cf66;
+}
+.like-btn:hover {
+    background: #51cf66;
+    color: white;
+}
+.profile-info {
+    padding: 25px;
+}
+.interest-badge {
+    background: #e9ecef;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-right: 8px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+.looking-for {
+    background: #d0ebff;
+    color: #1864ab;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 14px;
+    display: inline-block;
+}
+.status-badge {
+    background: #40c057;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 14px;
+    display: inline-block;
+}
+.info-section {
+    background: white;
+    border-radius: 0 15px 15px 0;
+    height: 100%;
+}
+.carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.profile-photo-container {
+    height: 600px;
+}
+.carousel {
+    height: 85%;
+}
+@media (max-width: 768px) {
+    .profile-photo-container {
+        border-radius: 15px 15px 0 0;
+    }
+    .carousel-item img {
+        border-radius: 15px 15px 0 0; /* Скругление только сверху на мобилках */
+        height: 300px;
+    }
+    .profile-actions {
+        border-radius: 0;
+    }
+    .info-section {
+        border-radius: 0 0 15px 15px;
+    }
+}

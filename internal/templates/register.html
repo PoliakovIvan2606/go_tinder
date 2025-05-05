@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Регистрация пользователя</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .form-container {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 25px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .form-title {
+      margin-bottom: 25px;
+      font-weight: 700;
+      font-size: 1.8rem;
+      text-align: center;
+    }
+    label { font-weight: 600; }
+    .btn-upload { margin-top: 10px; }
+    .photo-preview {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-container shadow">
+      <h2 class="form-title">Регистрация пользователя</h2>
+      <form id="registrationForm">
+        <div class="mb-3">
+          <label for="name" class="form-label">Имя</label>
+          <input type="text" class="form-control" id="name" name="name" required />
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Описание</label>
+          <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="city" class="form-label">Город</label>
+          <input type="text" class="form-control" id="city" name="city" placeholder="Введите ваш город" required />
+        </div>
+        <div class="mb-3">
+          <label for="age" class="form-label">Возраст</label>
+          <input type="number" class="form-control" id="age" name="age" min="18" max="100" required />
+        </div>
+        <div class="mb-3">
+          <label for="photo" class="form-label">Загрузить фото</label>
+          <input type="file" class="form-control" id="photo" name="photo[]" accept="image/*" multiple />
+          <div id="photoPreviewContainer" class="d-flex flex-wrap gap-2"></div>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Зарегистрироваться</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/register.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
