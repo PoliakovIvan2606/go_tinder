@@ -11,6 +11,7 @@ func SetupTemplateRoutes(group *gin.RouterGroup, templateHandler *TemplateHandle
 	TemplateGroup := group.Group("/")
 	{
 		TemplateGroup.GET("/register", templateHandler.register)
+		TemplateGroup.GET("/login", templateHandler.login)
 		TemplateGroup.GET("/preferences/:id", templateHandler.preferences)
 		TemplateGroup.GET("/user/:id", templateHandler.index)
 
@@ -35,4 +36,8 @@ func(h *TemplateHandler) preferences(c *gin.Context) {
 
 func(h *TemplateHandler) index(c *gin.Context) {
     c.HTML(http.StatusOK, "index.html", gin.H{})
+}
+
+func(h *TemplateHandler) login(c *gin.Context) {
+    c.HTML(http.StatusOK, "login.html", gin.H{})
 }

@@ -62,6 +62,8 @@ form.addEventListener('submit', async (e) => {
     description: formData.get('description'),
     city: formData.get('city'),
     age: parseInt(formData.get('age')),
+    email: formData.get('email'),
+    password: formData.get('password'),
     coordinates: coords ? `(${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)})` : null,
   };
 
@@ -72,9 +74,14 @@ form.addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    if (!res.ok) throw new Error('Ошибка создания пользователя');
-    const json = await res.json();
-    createdUserId = json.user_id;
+    
+    const user_add = await res.json();
+    
+    if (!res.ok) {
+      throw new Error('Ошибка создания пользователя: ' + user_add["error"]);
+    }
+    
+    createdUserId = user_add.user_id;
 
     // Загружаем все выбранные фото по отдельным запросам
     const files = photoInput.files;

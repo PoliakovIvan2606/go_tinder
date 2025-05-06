@@ -119,7 +119,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
-        if (!res.ok) throw new Error('Ошибка сохранения предпочтений');
+        const data_add = await res.json();
+        if (!res.ok) throw new Error('Ошибка сохранения предпочтений' + data_add["error"]);
         alert('Предпочтения сохранены!');
         // Можно редиректить или обновлять страницу
       } catch (err) {

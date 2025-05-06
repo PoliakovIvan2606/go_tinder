@@ -15,6 +15,7 @@ func SetupUserRoutes(group *gin.RouterGroup, userHandler *UserHandler) {
 	{
 		userGroup.GET("/:id", userHandler.GetUser)
 		userGroup.POST("/add", userHandler.CreateUser)
+		userGroup.POST("/login", userHandler.CheckUser)
 	}
 }
 
@@ -60,7 +61,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	var id int
 	id, err := h.st.User().Create(&user)
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(422, gin.H{
 			"error": err.Error(),
 			"example_request": gin.H{
 				"name":        "John Doe",
@@ -73,4 +74,28 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 	c.JSON(201, gin.H{"user_id": id}) 
+}
+
+func (h *UserHandler) CheckUser(c *gin.Context) {
+	var userCheck models.UserCheck
+	if err := c.ShouldBindJSON(&userCheck); err != nil {
+		c.JSON(400, gin.H{"error": "Неверный JSON"})
+		return
+	}
+
+	user, err := h.st.User().UserByEmail(userCheck.Email)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Внутренняя ошибка сервера"})
+		return
+	}
+	if user == nil {
+		c.JSON(401, gin.H{"error": "Пользователь не найден"})
+		return
+	}
+	if !user.CheckPasswordHash(userCheck.Password) {
+		c.JSON(401, gin.H{"error": "Неправильный пароль"})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Добро пожаловать"})
 }

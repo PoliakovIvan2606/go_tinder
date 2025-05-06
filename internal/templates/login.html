@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Авторизация</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .form-container {
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 25px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .form-title {
+      margin-bottom: 25px;
+      font-weight: 700;
+      font-size: 1.8rem;
+      text-align: center;
+    }
+    label { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-container shadow">
+      <h2 class="form-title">Вход в систему</h2>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email" required />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Пароль</label>
+          <input type="password" class="form-control" id="password" name="password" required />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Войти</button>
+      </form>
+      <div id="loginMessage" class="mt-3 text-center text-danger"></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const response = await fetch("/api/user/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          document.getElementById("loginMessage").textContent = errData.message || "Ошибка авторизации";
+        } else {
+          const data = await response.json();
+          document.getElementById("loginMessage").classList.remove("text-danger");
+          document.getElementById("loginMessage").classList.add("text-success");
+          document.getElementById("loginMessage").textContent = "Успешный вход!";
+          // Можно добавить редирект: window.location.href = "/dashboard";
+        }
+      } catch (err) {
+        document.getElementById("loginMessage").textContent = "Ошибка сети или сервера";
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

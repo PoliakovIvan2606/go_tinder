@@ -16,16 +16,22 @@ func (r *UserRepository) Create(u *models.UserCreate) (int, error) {
 	if err := u.Validate(); err != nil {
 		return 0, err
 	}
+
+    if err := u.HashPassword(); err != nil {
+        return 0, err
+    }
 	
 	var id int
-	err := r.store.db.QueryRow(
-		"INSERT INTO users (name, age, description, city, coordinates) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-		u.Name,
-		u.Age,
-		u.Description,
-		u.City,
-		u.Coordinates,
-	).Scan(&id)
+    err := r.store.db.QueryRow(
+        "INSERT INTO users (name, email, password_hash, age, description, city, coordinates) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+        u.Name,
+        u.Email,
+        u.PasswordHash,
+        u.Age,
+        u.Description,
+        u.City,
+        u.Coordinates,
+    ).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -42,6 +48,8 @@ func (r *UserRepository) UserById(id int) (*models.User, error) {
         SELECT
             u.id,
             u.name,
+            u.email,
+            u.password_hash,
             u.age,
             u.description,
             u.city,
@@ -60,6 +68,8 @@ func (r *UserRepository) UserById(id int) (*models.User, error) {
     err := r.store.db.QueryRow(query, id).Scan(
         &u.ID,
         &u.Name,
+        &u.Email,
+        &u.Password,
         &u.Age,
         &u.Description,
         &u.City,
@@ -80,4 +90,26 @@ func (r *UserRepository) UserById(id int) (*models.User, error) {
     }
 
     return u, nil
+}
+
+
+func (r *UserRepository) UserByEmail(email string) (*models.UserCreate, error) {
+    u := models.UserCreate{}
+    err := r.store.db.QueryRow(`SELECT name, email, password_hash, age, description, city, coordinates FROM users WHERE email = $1`, email).Scan(
+        &u.Name,
+        &u.Email,
+        &u.PasswordHash,
+        &u.Age,
+        &u.Description,
+        &u.City,
+        &u.Coordinates,
+    )
+    if err != nil {
+        if errors.Is(err, sql.ErrNoRows) {
+            return nil, nil
+        }
+        return nil, err
+    }
+
+    return &u, nil
 }
