@@ -93,23 +93,19 @@ func (r *UserRepository) UserById(id int) (*models.User, error) {
 }
 
 
-func (r *UserRepository) UserByEmail(email string) (*models.UserCreate, error) {
-    u := models.UserCreate{}
-    err := r.store.db.QueryRow(`SELECT name, email, password_hash, age, description, city, coordinates FROM users WHERE email = $1`, email).Scan(
-        &u.Name,
-        &u.Email,
-        &u.PasswordHash,
-        &u.Age,
-        &u.Description,
-        &u.City,
-        &u.Coordinates,
+func (r *UserRepository) IdAndPaswordByEmail(email string) (string, string, error) {
+    var id string
+    var passwordHash string
+    err := r.store.db.QueryRow(`SELECT id, password_hash FROM users WHERE email = $1`, email).Scan(
+        &id,
+        &passwordHash,
     )
     if err != nil {
         if errors.Is(err, sql.ErrNoRows) {
-            return nil, nil
+            return "", "", err
         }
-        return nil, err
+        return "", "", err
     }
 
-    return &u, nil
+    return id, passwordHash, nil
 }

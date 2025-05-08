@@ -13,7 +13,7 @@ func SetupTemplateRoutes(group *gin.RouterGroup, templateHandler *TemplateHandle
 		TemplateGroup.GET("/register", templateHandler.register)
 		TemplateGroup.GET("/login", templateHandler.login)
 		TemplateGroup.GET("/preferences/:id", templateHandler.preferences)
-		TemplateGroup.GET("/user/:id", templateHandler.index)
+		TemplateGroup.GET("/user", templateHandler.index)
 
 	}
 }

@@ -1,14 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Получаем id из URL
-    function getUserIdFromUrl() {
-        const pathParts = window.location.pathname.split('/');
-        return pathParts[pathParts.length - 1];
-    }
-    const userId = getUserIdFromUrl();
-
     async function fetchUserData() {
         try {
-            const response = await fetch(`http://127.0.0.1:8080/api/user/${userId}`);
+            const response = await fetch(`http://127.0.0.1:8080/api/user/`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }

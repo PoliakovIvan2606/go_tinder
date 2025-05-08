@@ -66,7 +66,7 @@
           document.getElementById("loginMessage").classList.remove("text-danger");
           document.getElementById("loginMessage").classList.add("text-success");
           document.getElementById("loginMessage").textContent = "Успешный вход!";
-          // Можно добавить редирект: window.location.href = "/dashboard";
+          window.location.href = `/user`;
         }
       } catch (err) {
         document.getElementById("loginMessage").textContent = "Ошибка сети или сервера";

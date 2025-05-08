@@ -1,6 +1,7 @@
 package apiserver
 
 import (
+	"tinder/internal/app/middleware"
 	"tinder/internal/app/routes"
 	"tinder/internal/app/store"
 
@@ -35,6 +36,7 @@ func (a *App) Run(addr string) error {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+	a.router.Use(middleware.AuthMiddleware())
 	a.router.Static("/static", "./internal/static")
 	a.router.LoadHTMLGlob("internal/templates/*")
 	routes.SetupRoutes(a.router, a.store)

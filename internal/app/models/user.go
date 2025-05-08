@@ -62,7 +62,7 @@ func (u *UserCreate) HashPassword() error {
 }
 
 // Проверка пароля
-func (u *UserCreate) CheckPasswordHash(password string) bool {
-    err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
+func CheckPasswordHash(passwordHash, password string) bool {
+    err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
     return err == nil
 }

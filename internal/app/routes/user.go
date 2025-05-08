@@ -3,9 +3,11 @@ package routes
 import (
 	"database/sql"
 	"errors"
+	// "net/http"
 	"strconv"
 	"tinder/internal/app/models"
 	"tinder/internal/app/store"
+	"tinder/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +15,7 @@ import (
 func SetupUserRoutes(group *gin.RouterGroup, userHandler *UserHandler) {
 	userGroup := group.Group("/user")
 	{
-		userGroup.GET("/:id", userHandler.GetUser)
+		userGroup.GET("/", userHandler.GetUser)
 		userGroup.POST("/add", userHandler.CreateUser)
 		userGroup.POST("/login", userHandler.CheckUser)
 	}
@@ -28,7 +30,17 @@ func NewUserHandler(st *store.Store) *UserHandler {
 }
 
 func (h *UserHandler) GetUser(c *gin.Context) {
-	idStr := c.Param("id")
+	idRaw, exists := c.Get("userID")
+	if !exists {
+		c.JSON(401, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	idStr, ok := idRaw.(string)
+	if !ok {
+		c.JSON(400, gin.H{"error": "Invalid user ID type"})
+		return
+	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -83,19 +95,30 @@ func (h *UserHandler) CheckUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.st.User().UserByEmail(userCheck.Email)
+	id, passwordHash, err := h.st.User().IdAndPaswordByEmail(userCheck.Email)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Внутренняя ошибка сервера"})
 		return
 	}
-	if user == nil {
-		c.JSON(401, gin.H{"error": "Пользователь не найден"})
+	if id == "" || !models.CheckPasswordHash(passwordHash, userCheck.Password) {
+		c.JSON(401, gin.H{"error": "Неверный email или пароль"})
 		return
 	}
-	if !user.CheckPasswordHash(userCheck.Password) {
-		c.JSON(401, gin.H{"error": "Неправильный пароль"})
+
+	accessToken, err := jwt.GenerateAccessToken(id)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Не удалось создать access токен"})
 		return
 	}
+
+	refreshToken, err := jwt.GenerateRefreshToken(id)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Не удалось создать refresh токен"})
+		return
+	}
+
+	c.SetCookie("access", accessToken, 900, "/", "", true, true)      // 900 = 15 мин
+	c.SetCookie("refresh", refreshToken, 604800, "/", "", true, true) // 7 дней
 
 	c.JSON(200, gin.H{"message": "Добро пожаловать"})
 }
