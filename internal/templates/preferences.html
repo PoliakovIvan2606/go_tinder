@@ -24,6 +24,7 @@
   </style>
 </head>
 <body>
+  {{ template "header" . }}
   <div class="container">
     <div class="form-container shadow">
       <h2 class="form-title">Предпочтения</h2>
@@ -56,12 +57,6 @@
   </div>
 
   <script>
-    // Получаем user_id из URL пути
-    function getUserId() {
-      const path = window.location.pathname; // "/preferences/14"
-      const parts = path.split('/');         // ["", "preferences", "14"]
-      return parts[2];                       // "14"
-    }
   
     // Функция для заполнения формы данными
     function fillForm(data) {
@@ -73,14 +68,9 @@
   
     // При загрузке страницы делаем запрос и заполняем форму
     window.addEventListener('DOMContentLoaded', async () => {
-      const userId = getUserId();
-      if (!userId) {
-        alert('Не удалось определить user_id из URL');
-        return;
-      }
   
       try {
-        const res = await fetch(`http://127.0.0.1:8080/api/preferences/${userId}`);
+        const res = await fetch(`http://127.0.0.1:8080/api/preferences/`);
         if (!res.ok) {
           throw new Error(`Ошибка загрузки предпочтений: ${res.statusText}`);
         }
@@ -97,15 +87,8 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
   
-      const userId = getUserId();
-      if (!userId) {
-        alert('Не удалось определить user_id из URL');
-        return;
-      }
-  
       const formData = new FormData(form);
       const data = {
-        user_id: parseInt(userId),
         gender: formData.get('gender'),
         age_from: parseInt(formData.get('age_from')),
         age_to: parseInt(formData.get('age_to')),
