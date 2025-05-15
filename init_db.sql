@@ -7,7 +7,7 @@ CREATE TABLE users (
     age INTEGER,
     description TEXT,
     city VARCHAR(100),
-    coordinates POINT,
+    coordinates GEOGRAPHY(Point, 4326),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -39,11 +39,16 @@ CREATE TABLE matches (
 );
 
 INSERT INTO users (name, email, password_hash, age, description, city, coordinates) VALUES
-('Алексей', 'aleksei@example.com', '$2a$10$hash1', 25, 'Люблю путешествия и активный отдых', 'Москва', '(37.6176, 55.7558)'),
-('Мария', 'maria@example.com', '$2a$10$hash2', 22, 'Ищу серьезные отношения', 'Санкт-Петербург', '(30.3159, 59.9391)'),
-('Иван', 'ivan@example.com', '$2a$10$hash3', 30, 'Программист, люблю спорт', 'Новосибирск', '(82.9204, 55.0084)'),
-('Елена', 'elena@example.com', '$2a$10$hash4', 28, 'Творческая личность', 'Казань', '(49.1088, 55.7963)'),
-('Дмитрий', 'dmitry@example.com', '$2a$10$hash5', 35, 'Бизнесмен, автомобилист', 'Сочи', '(39.7230, 43.5855)');
+('Алексей', 'aleksei@example.com', '$2a$10$hash1', 25, 'Люблю путешествия и активный отдых', 'Москва',
+ ST_SetSRID(ST_MakePoint(37.6176, 55.7558), 4326)::geography),
+('Мария', 'maria@example.com', '$2a$10$hash2', 22, 'Ищу серьезные отношения', 'Санкт-Петербург',
+ ST_SetSRID(ST_MakePoint(30.3159, 59.9391), 4326)::geography),
+('Иван', 'ivan@example.com', '$2a$10$hash3', 30, 'Программист, люблю спорт', 'Новосибирск',
+ ST_SetSRID(ST_MakePoint(82.9204, 55.0084), 4326)::geography),
+('Елена', 'elena@example.com', '$2a$10$hash4', 28, 'Творческая личность', 'Казань',
+ ST_SetSRID(ST_MakePoint(49.1088, 55.7963), 4326)::geography),
+('Дмитрий', 'dmitry@example.com', '$2a$10$hash5', 35, 'Бизнесмен, автомобилист', 'Сочи',
+ ST_SetSRID(ST_MakePoint(39.7230, 43.5855), 4326)::geography);
 
 INSERT INTO preferences (user_id, gender, age_from, age_to, radius) VALUES
 (1, 'Женский', 20, 30, 50),

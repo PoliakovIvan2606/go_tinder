@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"tinder/internal/app/models"
 )
 
@@ -23,14 +24,14 @@ func (r *UserRepository) Create(u *models.UserCreate) (int, error) {
 	
 	var id int
     err := r.store.db.QueryRow(
-        "INSERT INTO users (name, email, password_hash, age, description, city, coordinates) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+        "INSERT INTO users (name, email, password_hash, age, description, city, coordinates) VALUES ($1, $2, $3, $4, $5, $6, $7::geography) RETURNING id",
         u.Name,
         u.Email,
         u.PasswordHash,
         u.Age,
         u.Description,
         u.City,
-        u.Coordinates,
+        u.ToWKT(),
     ).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -53,7 +54,8 @@ func (r *UserRepository) UserById(id int) (*models.User, error) {
             u.age,
             u.description,
             u.city,
-            u.coordinates,
+            ST_X(u.coordinates::geometry) AS longitude,
+            ST_Y(u.coordinates::geometry) AS latitude,
             u.created_at,
             COALESCE(
                 json_agg(p.photo_url) FILTER (WHERE p.photo_url IS NOT NULL),
@@ -73,7 +75,8 @@ func (r *UserRepository) UserById(id int) (*models.User, error) {
         &u.Age,
         &u.Description,
         &u.City,
-        &u.Coordinates,
+        &u.Longitude,
+        &u.Latitude,
         &u.CreatedAt,
         &photosJSON,
     )
@@ -108,4 +111,58 @@ func (r *UserRepository) IdAndPaswordByEmail(email string) (string, string, erro
     }
 
     return id, passwordHash, nil
+}
+
+func (r *UserRepository)IdFromUsers() (*sql.Rows, error){
+    rows, err := r.store.db.Query("SELECT id FROM users")
+    if err != nil {
+        return nil, err
+    }
+    return rows, nil
+}
+
+func (r *UserRepository) IdPreferencesUser(userId int) (*sql.Rows, error) {
+	// Получаем координаты и предпочтения пользователя
+	var (
+		lat, lon   float64
+		ageFrom    int
+		ageTo      int
+		radius     int
+	)
+
+	err := r.store.db.QueryRow(`
+		SELECT 
+			ST_Y(coordinates::geometry), 
+			ST_X(coordinates::geometry), 
+			p.age_from, 
+			p.age_to, 
+			p.radius
+		FROM users u
+		JOIN preferences p ON p.user_id = u.id
+		WHERE u.id = $1
+	`, userId).Scan(&lat, &lon, &ageFrom, &ageTo, &radius)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user preferences: %w", err)
+	}
+	// Запрос пользователей в радиусе и нужном возрастном диапазоне
+	rows, err := r.store.db.Query(`
+		SELECT id
+		FROM users
+		WHERE
+			id != $1 AND
+			ST_DWithin(
+				coordinates,
+				ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography,
+				$4
+			)
+			AND age BETWEEN $5 AND $6
+		ORDER BY id
+	`, userId, lon, lat, radius, ageFrom, ageTo)
+
+	if err != nil {
+		return nil, fmt.Errorf("query nearby users failed: %w", err)
+	}
+
+	return rows, nil
 }

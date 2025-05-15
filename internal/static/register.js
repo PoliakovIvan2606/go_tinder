@@ -64,7 +64,8 @@ form.addEventListener('submit', async (e) => {
     age: parseInt(formData.get('age')),
     email: formData.get('email'),
     password: formData.get('password'),
-    coordinates: coords ? `(${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)})` : null,
+    latitude: coords ? parseFloat(coords.latitude.toFixed(6)) : null,
+    longitude: coords ? parseFloat(coords.longitude.toFixed(6)) : null,
   };
 
   try {

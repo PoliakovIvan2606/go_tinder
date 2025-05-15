@@ -4,10 +4,11 @@ import (
 	"tinder/internal/app/store"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
-func SetupRoutes(router *gin.Engine, st *store.Store) {
-	user_heandler := NewUserHandler(st)
+func SetupRoutes(router *gin.Engine, st *store.Store, redis *redis.Client) {
+	user_heandler := NewUserHandler(st, redis)
 	preferences_heandler := NewPreferencesHandler(st)
 	api := router.Group("/api")
 	{

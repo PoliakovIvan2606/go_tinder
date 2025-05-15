@@ -1,8 +1,9 @@
 package models
 
 import (
-	"errors"
-	"regexp"
+	// "errors"
+	"fmt"
+	// "regexp"
 
 	"github.com/asaskevich/govalidator"
 	"golang.org/x/crypto/bcrypt"
@@ -23,7 +24,9 @@ type UserCreate struct {
     Age         int    `json:"age" valid:"required,range(18|65)"`
     Description string `json:"description"`
     City        string `json:"city" valid:"required"`
-    Coordinates string `json:"coordinates" valid:"required"`
+    // Coordinates string `json:"coordinates" valid:"required"`
+    Latitude    float64 `json:"latitude" valid:"required"`
+	Longitude   float64 `json:"longitude" valid:"required"`
 }
 
 type UserCheck struct {
@@ -34,25 +37,37 @@ type UserCheck struct {
 func (u *UserCreate) Validate() error {
     _, err := govalidator.ValidateStruct(u)
     if err != nil {
-        if !isValidPoint(u.Coordinates) {
-            return errors.New(err.Error() + " 'coordinate': not valid (expected format: 'latitude,longitude')")
-        }
+        // if !isValidPoint(u.Coordinates) {
+        //     return errors.New(err.Error() + " 'coordinate': not valid (expected format: 'latitude,longitude')")
+        // }
         return err
     }
-    if !isValidPoint(u.Coordinates) {
-        return errors.New("coordinate not valid (expected format: 'latitude,longitude')")
-    }
+
+
+	// вручную проверяем диапазон координат
+	if u.Latitude < -90 || u.Latitude > 90 {
+		return fmt.Errorf("широта должна быть в диапазоне от -90 до 90")
+	}
+	if u.Longitude < -180 || u.Longitude > 180 {
+		return fmt.Errorf("долгота должна быть в диапазоне от -180 до 180")
+	}
+    // if !isValidPoint(u.Coordinates) {
+    //     return errors.New("coordinate not valid (expected format: 'latitude,longitude')")
+    // }
 
     return nil
 }
 
-
-var pointRegex = regexp.MustCompile(`^\(\s*[-+]?\d+(\.\d+)?\s*,\s*[-+]?\d+(\.\d+)?\s*\)$`)
-
-// Валидация координат
-func isValidPoint(s string) bool {
-    return pointRegex.MatchString(s)
+func (u *UserCreate) ToWKT() string {
+	return fmt.Sprintf("SRID=4326;POINT(%f %f)", u.Longitude, u.Latitude)
 }
+
+// var pointRegex = regexp.MustCompile(`^\(\s*[-+]?\d+(\.\d+)?\s*,\s*[-+]?\d+(\.\d+)?\s*\)$`)
+
+// // Валидация координат
+// func isValidPoint(s string) bool {
+//     return pointRegex.MatchString(s)
+// }
 
 // Хеширование пароля
 func (u *UserCreate) HashPassword() error {
